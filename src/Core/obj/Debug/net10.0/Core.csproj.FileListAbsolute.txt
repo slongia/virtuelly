@@ -1,0 +1,12 @@
+C:\Repos\Virtuelly\src\Core\bin\Debug\net10.0\Core.deps.json
+C:\Repos\Virtuelly\src\Core\bin\Debug\net10.0\Core.dll
+C:\Repos\Virtuelly\src\Core\bin\Debug\net10.0\Core.pdb
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.csproj.AssemblyReference.cache
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.AssemblyInfoInputs.cache
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.AssemblyInfo.cs
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.csproj.CoreCompileInputs.cache
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.dll
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\refint\Core.dll
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\Core.pdb
+C:\Repos\Virtuelly\src\Core\obj\Debug\net10.0\ref\Core.dll
