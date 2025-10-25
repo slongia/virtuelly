@@ -1,0 +1,110 @@
+# -------------------- #
+# Recommended Global Ignores for IDE and OS
+# -------------------- #
+.DS_Store # macOS generated files
+.env # Sensitive environment variables
+.env.* # Potentially sensitive environment files (e.g., .env.development.local)
+Thumbs.db # Windows generated files
+
+# VS Code
+.vscode/*
+!.vscode/settings.json # Optional: To share linting rules. Otherwise, ignore.
+!.vscode/tasks.json # Optional: For build tasks. Otherwise, ignore.
+!.vscode/launch.json # Optional: For debugging configs. Otherwise, ignore.
+!.vscode/extensions.json # Optional: For recommending extensions. Otherwise, ignore.
+*.code-workspace # VS Code workspace file
+
+# -------------------- #
+# Docker
+# -------------------- #
+# Docker ignores are typically handled by a separate `.dockerignore` file,
+# but it is good practice to prevent Git from tracking common Docker-related artifacts.
+docker-compose.override.yml # Local override file
+*.swp # Swap files from vim/neovim
+*.swo # Swap files from vim/neovim
+
+# -------------------- #
+# .NET 9
+# -------------------- #
+# Automatically generated build and dependency directories
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userprefs
+*.csproj.user
+*.sln.docstates
+*.vsp
+*.vspx
+*.vspscc
+*.vssscc
+*.tmp
+*.tmx
+*.vsscc
+*.vsct
+*.dot
+*.pdb
+*.orig
+*.log
+
+# NuGet package manager files
+*.nupkg
+*.snk
+[Pp]ackages/
+!packages.config
+*.cache
+*.vsix
+*.intellisense.xml
+# Exclude the project's packages from source control
+**/[Pp]ackages/*
+!**/[Pp]ackages/repositories.config
+!**/[Pp]ackages/*.json
+
+# Rider / JetBrains IDE files
+.idea/
+.Rider/
+
+# Resharper generated files
+*.DotSettings.user
+_ReSharper.*/
+/ReSharper.dotSettings
+/ReSharper.user
+
+# Kestrel/IIS Express artifacts
+**/*.lock.json
+**/*.config.json
+
+# Web tools artifacts
+node_modules/
+.npm/
+
+# -------------------- #
+# Angular
+# -------------------- #
+# Node.js artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Angular build output
+dist/
+.angular/
+
+# Other temporary files
+.sass-cache/
+.eslintcache
+*.tsbuildinfo
+.jest-cache/
+
+# Angular CLI files
+.idea/
+.cache/
+.editorconfig
+.vscode/
+
+# End of .gitignore file
+# Custom rules can be added below this line
