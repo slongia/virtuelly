@@ -1,0 +1,68 @@
+{
+  "folders": [
+    { "path": "src/Orchestration/AppHost" },
+    { "path": "src/Gateways/ApiGateway" },
+
+    { "path": "src/Web/Razor.Web" },
+    { "path": "src/Web/Razor.Admin" },
+    { "path": "src/Web/Angular.Web" },
+    { "path": "src/Web/Angular.Admin" },
+
+    { "path": "src/Services/IdentityService" },
+    { "path": "src/Services/UserService" },
+    { "path": "src/Services/NotificationService" },
+    { "path": "src/Services/ContentService" },
+    { "path": "src/Services/CustomerChat.AgentService" },
+
+    { "path": "src/Shared" },
+    { "path": "infra" },
+    { "path": "tests" }
+  ],
+
+  "settings": {
+    // 🧠 General
+    "files.exclude": {
+      "**/bin": true,
+      "**/obj": true,
+      "**/node_modules": true
+    },
+    "files.autoSave": "onFocusChange",
+
+    // 🧱 C# / .NET
+    "dotnet.defaultSolution": "Virtuelly.sln",
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.enableEditorConfigSupport": true,
+
+    // 🪶 Angular / TypeScript
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // 🐳 Docker
+    "docker.attachShellCommand.linuxContainers": true,
+
+    // 🧩 Aspire / Microservices debugging
+    "debug.internalConsoleOptions": "neverOpen",
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+    "cSpell.words": ["virtuelly"]
+  },
+
+  "extensions": {
+    "recommendations": [
+      "ms-dotnettools.csharp",
+      "ms-dotnettools.csdevkit",
+      "ms-azuretools.vscode-docker",
+      "ms-vscode.vscode-typescript-next",
+      "ms-vscode.vscode-node-azure-pack",
+      "angular.ng-template",
+      "esbenp.prettier-vscode",
+      "ms-azuretools.azure-dev",
+      "ms-azuretools.azure-containerapps",
+      "ms-azuretools.vscode-bicep",
+      "ms-vscode-remote.remote-containers",
+      "mtxr.sqltools",
+      "cweijan.vscode-postgresql-client2",
+      "streetsidesoftware.code-spell-checker"
+    ]
+  }
+}

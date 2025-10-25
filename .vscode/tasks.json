@@ -1,0 +1,270 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ---------------------------
+    // .NET restore & build
+    // ---------------------------
+    {
+      "label": "restore",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "restore",
+        "Virtuelly.sln"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "Virtuelly.sln",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "dependsOn": [
+        "restore"
+      ]
+    },
+
+    // ---------------------------
+    // Run individual services (optional standalone start without debugger)
+    // These are nice when you want Ctrl+Shift+B style run terminals
+    // ---------------------------
+    {
+      "label": "run:IdentityService",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Services/IdentityService/IdentityService.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:UserService",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Services/UserService/UserService.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:NotificationService",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Services/NotificationService/NotificationService.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:ContentService",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Services/ContentService/ContentService.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:CustomerChat.AgentService",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Services/CustomerChat.AgentService/CustomerChat.AgentService.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:ApiGateway",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Gateways/ApiGateway/ApiGateway.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:Razor.Web",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Web/Razor.Web/Razor.Web.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run:Razor.Admin",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "src/Web/Razor.Admin/Razor.Admin.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ---------------------------
+    // Angular dev servers
+    // These are referenced in launch.json as preLaunchTask
+    // ---------------------------
+    {
+      "label": "angular.web:install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Web/Angular.Web"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "angular.web:serve",
+      "type": "shell",
+      "dependsOn": "angular.web:install",
+      "command": "npm run start -- --port 4200 --proxy-config proxy.conf.json",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Web/Angular.Web"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting Dev Server",
+          "endsPattern": "Compiled successfully"
+        }
+      }
+    },
+    {
+      "label": "angular.admin:install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Web/Angular.Admin"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "angular.admin:serve",
+      "type": "shell",
+      "dependsOn": "angular.admin:install",
+      "command": "npm run start -- --port 4300 --proxy-config proxy.conf.json",
+      "options": {
+        "cwd": "${workspaceFolder}/src/Web/Angular.Admin"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+          "owner": "custom",
+          "pattern": [
+            {
+              "regexp": ".",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "Starting Dev Server",
+            "endsPattern": "Compiled successfully"
+          }
+      }
+    },
+
+    // ---------------------------
+    // EF Core database-first scaffold (placeholder)
+    // This will reverse-engineer models from your PostgreSQL schemas per service.
+    // We'll fill real args (connection string, schema, namespace) in the next step.
+    // ---------------------------
+    {
+      "label": "ef-scaffold:UserService",
+      "type": "shell",
+      "command": "dotnet ef dbcontext scaffold \"Host=localhost;Port=5432;Database=virtuelly;Username=dev;Password=devpwd\" Npgsql.EntityFrameworkCore.PostgreSQL --schema users --context-dir Data --output-dir Data/Models --project src/Services/UserService/UserService.csproj --force",
+      "problemMatcher": []
+    },
+    {
+      "label": "ef-scaffold:IdentityService",
+      "type": "shell",
+      "command": "dotnet ef dbcontext scaffold \"Host=localhost;Port=5432;Database=virtuelly;Username=dev;Password=devpwd\" Npgsql.EntityFrameworkCore.PostgreSQL --schema identity --context-dir Features/Users/Data --output-dir Features/Users/Models --project src/Services/IdentityService/IdentityService.csproj --force",
+      "problemMatcher": []
+    },
+
+    // ---------------------------
+    // Docker Compose (local infra: postgres + seq + jaeger + maybe services later)
+    // ---------------------------
+    {
+      "label": "docker:up",
+      "type": "shell",
+      "command": "docker compose -f infra/containers/docker-compose.yml up --build",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker:down",
+      "type": "shell",
+      "command": "docker compose -f infra/containers/docker-compose.yml down",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: virtuelly-postgres
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpwd
+      POSTGRES_DB: virtuelly
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./../db/postgres/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq:2024
+    container_name: virtuelly-seq
+    environment:
+      ACCEPT_EULA: 'Y'
+    ports:
+      - '5341:80'
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    container_name: virtuelly-jaeger
+    ports:
+      - '16686:16686' # Jaeger UI
+      - '6831:6831/udp'
+      - '4317:4317' # OTLP gRPC
+      - '4318:4318' # OTLP HTTP
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

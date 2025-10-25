@@ -1,0 +1,118 @@
+{
+    "ReverseProxy": {
+        "Routes": [
+            {
+                "RouteId": "identity_route",
+                "ClusterId": "identity_cluster",
+                "Match": {
+                    "Path": "/api/auth/{**catch-all}"
+                },
+                "Transforms": [
+                    {
+                        "PathRemovePrefix": "/api/auth"
+                    },
+                    {
+                        "RequestHeaderOriginalHost": "true"
+                    }
+                ]
+            },
+            {
+                "RouteId": "users_route",
+                "ClusterId": "users_cluster",
+                "Match": {
+                    "Path": "/api/users/{**catch-all}"
+                },
+                "Transforms": [
+                    {
+                        "PathRemovePrefix": "/api/users"
+                    },
+                    {
+                        "RequestHeaderOriginalHost": "true"
+                    }
+                ]
+            },
+            {
+                "RouteId": "notifications_route",
+                "ClusterId": "notifications_cluster",
+                "Match": {
+                    "Path": "/api/notifications/{**catch-all}"
+                },
+                "Transforms": [
+                    {
+                        "PathRemovePrefix": "/api/notifications"
+                    },
+                    {
+                        "RequestHeaderOriginalHost": "true"
+                    }
+                ]
+            },
+            {
+                "RouteId": "content_route",
+                "ClusterId": "content_cluster",
+                "Match": {
+                    "Path": "/api/content/{**catch-all}"
+                },
+                "Transforms": [
+                    {
+                        "PathRemovePrefix": "/api/content"
+                    },
+                    {
+                        "RequestHeaderOriginalHost": "true"
+                    }
+                ]
+            },
+            {
+                "RouteId": "chat_route",
+                "ClusterId": "chat_cluster",
+                "Match": {
+                    "Path": "/api/chat/{**catch-all}"
+                },
+                "Transforms": [
+                    {
+                        "PathRemovePrefix": "/api/chat"
+                    },
+                    {
+                        "RequestHeaderOriginalHost": "true"
+                    }
+                ]
+            }
+        ],
+        "Clusters": {
+            "identity_cluster": {
+                "Destinations": {
+                    "identity_api": {
+                        "Address": "http://localhost:5101/"
+                    }
+                }
+            },
+            "users_cluster": {
+                "Destinations": {
+                    "users_api": {
+                        "Address": "http://localhost:5102/"
+                    }
+                }
+            },
+            "notifications_cluster": {
+                "Destinations": {
+                    "notifications_api": {
+                        "Address": "http://localhost:5103/"
+                    }
+                }
+            },
+            "content_cluster": {
+                "Destinations": {
+                    "content_api": {
+                        "Address": "http://localhost:5104/"
+                    }
+                }
+            },
+            "chat_cluster": {
+                "Destinations": {
+                    "chat_api": {
+                        "Address": "http://localhost:5105/"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,164 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ====================
+    // .NET services
+    // ====================
+    {
+      "name": "IdentityService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Services/IdentityService/bin/Debug/net9.0/IdentityService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Services/IdentityService",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "UserService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Services/UserService/bin/Debug/net9.0/UserService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Services/UserService",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "NotificationService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Services/NotificationService/bin/Debug/net9.0/NotificationService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Services/NotificationService",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "ContentService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Services/ContentService/bin/Debug/net9.0/ContentService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Services/ContentService",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "CustomerChat.AgentService",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Services/CustomerChat.AgentService/bin/Debug/net9.0/CustomerChat.AgentService.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Services/CustomerChat.AgentService",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+
+    // ====================
+    // Gateway (YARP reverse proxy)
+    // ====================
+    {
+      "name": "ApiGateway",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Gateways/ApiGateway/bin/Debug/net9.0/ApiGateway.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Gateways/ApiGateway",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+
+    // ====================
+    // Razor front-ends
+    // ====================
+    {
+      "name": "Razor.Web",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Web/Razor.Web/bin/Debug/net9.0/Razor.Web.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Web/Razor.Web",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "browser": "chrome",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      }
+    },
+    {
+      "name": "Razor.Admin",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Web/Razor.Admin/bin/Debug/net9.0/Razor.Admin.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/Web/Razor.Admin",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "console": "integratedTerminal",
+      "stopAtEntry": false,
+      "browser": "chrome",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      }
+    },
+
+    // ====================
+    // Angular front-ends
+    // (Attaches debugger to ng serve)
+    // ====================
+    {
+      "name": "Angular.Web (Chrome Debug)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}/src/Web/Angular.Web",
+      "preLaunchTask": "angular.web:serve"
+    },
+    {
+      "name": "Angular.Admin (Chrome Debug)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:4300",
+      "webRoot": "${workspaceFolder}/src/Web/Angular.Admin",
+      "preLaunchTask": "angular.admin:serve"
+    }
+  ],
+
+  "compounds": [
+    {
+      "name": "Launch Full Backend (no Angular)",
+      "configurations": [
+        "IdentityService",
+        "UserService",
+        "NotificationService",
+        "ContentService",
+        "CustomerChat.AgentService",
+        "ApiGateway",
+        "Razor.Web"
+      ]
+    }
+  ]
+}
