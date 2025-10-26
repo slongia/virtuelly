@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Host=localhost;Port=5433;Database=virtuelly;Username=dev;Password=dev@123456" Npgsql.EntityFrameworkCore.PostgreSQL --context-dir "src/Services/IdentityService/Features/Users/Data" --output-dir "src/Services/IdentityService/Features/Users/Models" --project "src/Services/IdentityService/IdentityService.csproj" --force
