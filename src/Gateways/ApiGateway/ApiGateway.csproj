@@ -1,8 +1,28 @@
-<ItemGroup>
-  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
-  <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
-  <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
-  <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
-  <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
-  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-</ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>virtuelly-apigateway-dev</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- YARP reverse proxy -->
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
+
+    <!-- JWT auth to validate tokens before forwarding to downstream services -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+
+    <!-- Swagger, optional but handy if you expose diagnostics endpoints -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
+    <!-- Serilog so logs are consistent with other services -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+
+    <!-- OpenTelemetry pieces (optional, good standardization) -->
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
+  </ItemGroup>
+
+</Project>
