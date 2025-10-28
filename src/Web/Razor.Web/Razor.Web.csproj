@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>virtuelly-razor-web-dev</UserSecretsId>
+
+    <!-- This is needed in .NET 9+ to enable runtime compilation in dev
+         without pulling an external older package -->
+    <GenerateRazorRuntimeCompilation>true</GenerateRazorRuntimeCompilation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Serilog integration (exists on nuget.org and works fine on 9.x runtime) -->
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+
+    <!-- Swagger (optional but fine to keep around even for Razor if you expose APIs later) -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+</Project>
