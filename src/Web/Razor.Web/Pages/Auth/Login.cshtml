@@ -1,0 +1,38 @@
+@page
+@model Razor.Web.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Sign In";
+}
+
+<h2>Sign In</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div style="color:red">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div>
+        <label>Email</label><br />
+        <input asp-for="Input.Email" />
+        <span asp-validation-for="Input.Email" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>Password</label><br />
+        <input asp-for="Input.Password" type="password" />
+        <span asp-validation-for="Input.Password" style="color:red"></span>
+    </div>
+
+    <button type="submit">Sign In</button>
+</form>
+
+<p>
+    New here?
+    <a asp-page="/Auth/Register">Create an account</a>
+</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
