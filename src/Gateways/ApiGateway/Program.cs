@@ -2,28 +2,32 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Yarp.ReverseProxy;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// logging
+// --------------------------------------
+// 1. Logging via Serilog
+// --------------------------------------
 builder.Host.UseSerilog((ctx, cfg) =>
 {
     cfg.ReadFrom.Configuration(ctx.Configuration);
     cfg.WriteTo.Console();
 });
 
-// reverse proxy (routes, clusters come from yarp.routes.json / appsettings.json)
-builder.Services.AddReverseProxy()
+// --------------------------------------
+// 2. YARP Reverse Proxy
+//    We load routes and clusters from configuration ("ReverseProxy" section)
+// --------------------------------------
+builder.Services
+    .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-// swagger (optional: doc for gateway endpoints if you expose any)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(o =>
-{
-    o.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiGateway", Version = "v1" });
-});
-
-// CORS for local Angular/Razor dev
+// --------------------------------------
+// 3. CORS for local dev
+//    Allow Razor.Web, Angular.Web, etc. to hit the gateway
+// --------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("dev-cors", policy =>
@@ -32,31 +36,65 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials()
               .WithOrigins(
-                  "http://localhost:4200", // Angular.Web
-                  "http://localhost:4300", // Angular.Admin
-                  "https://localhost:5001", // Razor.Web dev https
-                  "https://localhost:5002"  // Razor.Admin dev https
+                  "https://localhost:7000", // gateway itself (sometimes iframes, etc.)
+                  "http://localhost:7001",
+                  "https://localhost:5001", // Razor.Web HTTPS dev (you'll set in Razor.Web launch later)
+                  "http://localhost:5001",
+                  "http://localhost:4200",  // Angular.Web dev
+                  "http://localhost:4300"   // Angular.Admin dev
               );
     });
 });
 
-// JWT validation (gateway enforces auth before proxying)
+// --------------------------------------
+// 4. JWT validation
+//    The gateway is the bouncer. If the token is bad, request stops here.
+// --------------------------------------
+var signingKey = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"]!)
+);
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = builder.Configuration["Jwt:Authority"];
-        options.Audience = builder.Configuration["Jwt:Audience"];
-        options.RequireHttpsMetadata = false;
+        // Validate tokens that IdentityService mints
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+
+            ValidateLifetime = true
+        };
+
+        options.RequireHttpsMetadata = false; // dev
+        options.SaveToken = true;
     });
 
 builder.Services.AddAuthorization();
 
-// health check: gateway is alive
+// --------------------------------------
+// 5. Swagger (optional, usually just for diagnostics at the gateway)
+// --------------------------------------
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiGateway", Version = "v1" });
+});
+
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// --------------------------------------
+// 6. Pipeline
+// --------------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -65,16 +103,18 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 
+app.UseHttpsRedirection();
+
 app.UseCors("dev-cors");
 
-// all requests go through auth unless you mark certain routes as anonymous
+// Order matters: auth BEFORE proxy
 app.UseAuthentication();
 app.UseAuthorization();
 
-// mount reverse proxy
-app.MapReverseProxy();
+// /health endpoint for kubernetes / compose / uptime checks
+app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "ApiGateway" }));
 
-// health
-app.MapGet("/health", () => Results.Ok("ok"));
+// ReverseProxy will now handle all /api/... calls
+app.MapReverseProxy();
 
 app.Run();
