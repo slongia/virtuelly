@@ -1,0 +1,15 @@
+# Build + run dev image for .NET 9 with hot reload
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+
+WORKDIR /app
+
+# copy solution + restore first
+COPY ./Virtuelly.sln ./
+COPY ./src ./src
+
+# restore (so container has all deps cached)
+RUN dotnet restore ./src/Services/IdentityService/IdentityService.csproj
+
+# default command: run with watching enabled
+# override this per service, e.g. pass in project path from compose
+CMD ["dotnet", "watch", "run", "--no-hot-reload"]
