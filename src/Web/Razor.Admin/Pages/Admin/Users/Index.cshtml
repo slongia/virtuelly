@@ -1,0 +1,107 @@
+@page
+@model Razor.Admin.Pages.Admin.Users.IndexModel
+
+@{
+    ViewData["Title"] = "User Management";
+    var result = Model.Result;
+    var currentSortBy = Model.SortBy ?? "Email";
+    var currentSortDir = Model.SortDir ?? "asc";
+    string ToggleDir(string col) =>
+    (currentSortBy.Equals(col, StringComparison.OrdinalIgnoreCase) && currentSortDir == "asc")
+    ? "desc"
+    : "asc";
+}
+
+<h2>User Management</h2>
+
+<form method="get" style="margin-bottom:1rem;">
+    <input type="text" name="Search" value="@Model.Search" placeholder="Search email..." />
+    <input type="hidden" name="PageNumber" value="1" />
+    <input type="hidden" name="PageSize" value="@Model.PageSize" />
+    <input type="hidden" name="SortBy" value="@Model.SortBy" />
+    <input type="hidden" name="SortDir" value="@Model.SortDir" />
+    <button type="submit">Search</button>
+</form>
+
+@if (result is null || result.Items.Count == 0)
+{
+    <p>No users found.</p>
+}
+else
+{
+    <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-page="./Index" asp-route-PageNumber="1" asp-route-PageSize="@Model.PageSize"
+                        asp-route-SortBy="Email" asp-route-SortDir="@ToggleDir("Email")" asp-route-Search="@Model.Search">
+                        Email
+                        @(currentSortBy.Equals("Email", StringComparison.OrdinalIgnoreCase)
+                                            ? (currentSortDir == "asc" ? "↑" : "↓")
+                                            : "")
+                    </a>
+                </th>
+                <th>Email Confirmed</th>
+                <th>Lockout</th>
+                <th>Failed Count</th>
+                <th>Roles</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in result.Items)
+            {
+                <tr>
+                    <td>@u.Email</td>
+                    <td>@u.EmailConfirmed</td>
+                    <td>
+                        @if (u.LockoutEnabled)
+                        {
+                            <text>enabled @u.LockoutEnd</text>
+                        }
+                        else
+                        {
+                            <text>off</text>
+                        }
+                    </td>
+                    <td>@u.AccessFailedCount</td>
+                    <td>@string.Join(", ", u.Roles)</td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@u.Id">Edit</a> |
+                        <a asp-page="./Delete" asp-route-id="@u.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top:1rem;">
+        Page @result.PageNumber of
+        @{
+            // totalPages = ceil(TotalCount / PageSize)
+            var totalPages = (int)Math.Ceiling(
+            result.TotalCount / (double)result.PageSize
+            );
+            @totalPages
+            ;
+        }
+        <br />
+
+        @if (result.PageNumber > 1)
+        {
+            <a asp-page="./Index" asp-route-PageNumber="@(result.PageNumber - 1)" asp-route-PageSize="@result.PageSize"
+                asp-route-SortBy="@Model.SortBy" asp-route-SortDir="@Model.SortDir" asp-route-Search="@Model.Search">
+                ← Prev
+            </a>
+        }
+
+        @if (result.PageNumber * result.PageSize < result.TotalCount)
+        {
+            <a asp-page="./Index" asp-route-PageNumber="@(result.PageNumber + 1)" asp-route-PageSize="@result.PageSize"
+                asp-route-SortBy="@Model.SortBy" asp-route-SortDir="@Model.SortDir" asp-route-Search="@Model.Search"
+                style="margin-left:1rem;">
+                Next →
+            </a>
+        }
+    </div>
+}
