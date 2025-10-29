@@ -9,7 +9,7 @@
                 },
                 "Transforms": [
                     {
-                        "PathRemovePrefix": "/api/auth"
+                        "PathRemovePrefix": "/api"
                     },
                     {
                         "RequestHeaderOriginalHost": "true"
