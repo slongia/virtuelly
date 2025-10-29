@@ -1,40 +1,54 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Serilog;
+using Razor.Admin.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// logging
+// 1. Logging
 builder.Host.UseSerilog((ctx, cfg) =>
 {
     cfg.ReadFrom.Configuration(ctx.Configuration);
     cfg.WriteTo.Console();
 });
 
-// Razor Pages
-builder.Services.AddRazorPages();
+// 2. Razor Pages
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/Admin", "AdminOnly");
+});
 
-// Cookie auth for Razor session
+// 3. Cookie auth (admin UI session)
 builder.Services
-    .AddAuthentication(CookiesAuthenticationDefaults.AuthenticationScheme)
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/auth/login";
-        options.LogoutPath = "/auth/logout";
-        // you can map these pages
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.Cookie.Name = "virtuelly.admin.auth";
+        options.Cookie.HttpOnly = true;
+        options.SlidingExpiration = true;
     });
 
-// Authorization for [Authorize] on pages
-builder.Services.AddAuthorization();
-
-// HttpClient to call ApiGateway on behalf of the signed-in user
-builder.Services.AddHttpClient("ApiGatewayClient", client =>
+builder.Services.AddAuthorization(options =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Gateway:BaseUrl"] ?? "https://localhost:7000");
-    // You’ll forward user JWT or service credentials when calling downstream
+    options.AddPolicy("AdminOnly", p =>
+    {
+        p.RequireAuthenticatedUser();
+        p.RequireRole("Admin");
+    });
 });
+
+// 4. HttpClient + AdminUsersClient for API calls
+builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<AdminUsersClient>();
+builder.Services.AddScoped<AuthClientAdmin>();
 
 var app = builder.Build();
 
+// pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -51,6 +65,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Admin pages, Razor Pages endpoints
 app.MapRazorPages();
+
+// health check
+app.MapGet("/health", () => Results.Ok(new
+{
+    service = "Razor.Admin",
+    status = "ok",
+    timestampUtc = DateTime.UtcNow
+}));
 
 app.Run();
