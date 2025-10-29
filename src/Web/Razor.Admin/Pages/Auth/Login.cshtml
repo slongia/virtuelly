@@ -1,0 +1,33 @@
+@page
+@model Razor.Admin.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<h2>Admin Login</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div style="color:red">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div>
+        <label asp-for="Input.Email"></label><br />
+        <input asp-for="Input.Email" />
+        <span asp-validation-for="Input.Email" style="color:red"></span>
+    </div>
+
+    <div style="margin-top:1rem;">
+        <label asp-for="Input.Password"></label><br />
+        <input asp-for="Input.Password" type="password" />
+        <span asp-validation-for="Input.Password" style="color:red"></span>
+    </div>
+
+    <button type="submit" style="margin-top:1rem;">Sign in</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
