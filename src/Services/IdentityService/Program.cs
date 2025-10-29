@@ -1,42 +1,60 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using IdentityService.Features.User.Data;
-
+using IdentityService.Features.Users.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Logging (Serilog)
+// 1. Serilog logging
 builder.Host.UseSerilog((ctx, cfg) =>
 {
     cfg.ReadFrom.Configuration(ctx.Configuration);
     cfg.WriteTo.Console();
 });
 
-// 2. Add controllers (API endpoints)
-builder.Services.AddControllers();
-
-// 3. Add EF Core DbContext for the identity schema
-builder.Services.AddDbContext<IdentityDbContext>(options =>
+// 2. EF Core DbContext -> PostgreSQL
+//    IMPORTANT: register IdentityAppDbContext here
+builder.Services.AddDbContext<IdentityAppDbContext>(options =>
 {
-    var connString = builder.Configuration.GetConnectionString("Postgres");
-
-    options.UseNpgsql(connString, npgsql =>
-    {
-        // optional: map migrations history table to identity schema if you ever add migrations
-        npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "identity");
-    });
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("Postgres"),
+        npgsql =>
+        {
+            // Put EF migrations table in the same schema
+            npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "identity");
+        }
+    );
 });
 
-// 4. Authentication & Authorization with JWT
+// 3. ASP.NET Core Identity using IdentityAppDbContext
+builder.Services
+    .AddIdentityCore<IdentityUser>(options =>
+    {
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<IdentityAppDbContext>() // <-- use IdentityAppDbContext
+    .AddSignInManager<SignInManager<IdentityUser>>();
+
+// 4. JWT issuance + validation
+var signingKey = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"]!)
+);
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // For now we just set validation parameters inline.
-        // Later we’ll sign tokens here and also validate Issuer/Audience.
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        options.TokenValidationParameters = new()
         {
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
@@ -45,20 +63,20 @@ builder.Services
             ValidAudience = builder.Configuration["Jwt:Audience"],
 
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"]!)
-            ),
+            IssuerSigningKey = signingKey,
 
             ValidateLifetime = true
         };
 
-        options.RequireHttpsMetadata = false; // dev only
+        options.RequireHttpsMetadata = false; // dev
         options.SaveToken = true;
     });
 
 builder.Services.AddAuthorization();
 
-// 5. Swagger (with Bearer button)
+// 5. Controllers + Swagger
+builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
 {
@@ -80,12 +98,11 @@ builder.Services.AddSwaggerGen(o =>
     });
 });
 
-// 6. Health checks
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// Swagger UI in Development
+// middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -96,7 +113,6 @@ app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
-// auth
 app.UseAuthentication();
 app.UseAuthorization();
 
