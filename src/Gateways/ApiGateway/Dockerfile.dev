@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+
+WORKDIR /app
+
+COPY ./Virtuelly.sln ./
+COPY ./src ./src
+
+RUN dotnet restore ./src/Gateways/ApiGateway/ApiGateway.csproj
+
+CMD ["dotnet", "watch", "run", "--project", "src/Gateways/ApiGateway/ApiGateway.csproj", "--no-hot-reload"]

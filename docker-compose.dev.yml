@@ -1,0 +1,137 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: virtuelly-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev@123456
+      POSTGRES_DB: virtuelly
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"] # verbose for dev
+
+  identityservice:
+    build:
+      context: .
+      dockerfile: ./src/Services/IdentityService/Dockerfile.dev
+    container_name: virtuelly-identity
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # DB connection string must point to "postgres" service name, NOT localhost
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=virtuelly;Username=dev;Password=dev@123456
+      Jwt__Issuer: https://localhost:7000
+      Jwt__Audience: virtuelly-clients
+      Jwt__SigningKey: u3V9q#5pL8!xR1zN0cB7yW2rF6kP9mTQ
+    depends_on:
+      - postgres
+    ports:
+      - "5101:5101"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      dotnet watch run
+      --project src/Services/IdentityService/IdentityService.csproj
+      --urls=http://0.0.0.0:5101
+      --no-hot-reload
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: ./src/Gateways/ApiGateway/Dockerfile.dev
+    container_name: virtuelly-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Gateway needs to talk to identityservice by container name
+      ReverseProxy__Clusters__identity_cluster__Destinations__identity_api__Address: http://identityservice:5101/
+      Jwt__Issuer: https://localhost:7000
+      Jwt__Audience: virtuelly-clients
+      Jwt__SigningKey: u3V9q#5pL8!xR1zN0cB7yW2rF6kP9mTQ
+    depends_on:
+      - identityservice
+    ports:
+      - "7000:7000"
+      - "7001:7001"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      dotnet watch run
+      --project src/Gateways/ApiGateway/ApiGateway.csproj
+      --urls=https://0.0.0.0:7000;http://0.0.0.0:7001
+      --no-hot-reload
+
+  razoradmin:
+    build:
+      context: .
+      dockerfile: ./src/Web/Razor.Admin/Dockerfile.dev
+    container_name: virtuelly-admin
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Gateway__BaseUrl: https://localhost:7000
+    depends_on:
+      - apigateway
+    ports:
+      - "5100:5100"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      dotnet watch run
+      --project src/Web/Razor.Admin/Razor.Admin.csproj
+      --urls=https://0.0.0.0:5100;http://0.0.0.0:5102
+      --no-hot-reload
+
+  razorweb:
+    build:
+      context: .
+      dockerfile: ./src/Web/Razor.Web/Dockerfile.dev
+    container_name: virtuelly-web
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Gateway__BaseUrl: https://localhost:7000
+    depends_on:
+      - apigateway
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: >
+      dotnet watch run
+      --project src/Web/Razor.Web/Razor.Web.csproj
+      --urls=https://0.0.0.0:5001;http://0.0.0.0:5000
+      --no-hot-reload
+
+  # angularweb:
+  #   image: node:20
+  #   container_name: virtuelly-angularweb
+  #   working_dir: /workspace
+  #   volumes:
+  #     - ./src/Web/Angular.Web:/workspace
+  #   command: sh -c "npm install && npm run start"
+  #   ports:
+  #     - "4200:4200"
+  #   environment:
+  #     # for CORS in dev, your Angular app will call the ApiGateway
+  #     API_BASE_URL: https://localhost:7000
+
+  # angularadmin:
+  #   image: node:20
+  #   container_name: virtuelly-angularadmin
+  #   working_dir: /workspace
+  #   volumes:
+  #     - ./src/Web/Angular.Admin:/workspace
+  #   command: sh -c "npm install && npm run start"
+  #   ports:
+  #     - "4300:4300"
+  #   environment:
+  #     API_BASE_URL: https://localhost:7000
+
+volumes:
+  pgdata:

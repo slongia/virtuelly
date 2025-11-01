@@ -18,7 +18,7 @@ builder.Host.UseSerilog((ctx, cfg) =>
 
 // --------------------------------------
 // 2. YARP Reverse Proxy
-//    We load routes and clusters from configuration ("ReverseProxy" section)
+//    Load routes and clusters from configuration
 // --------------------------------------
 builder.Services
     .AddReverseProxy()
@@ -26,23 +26,26 @@ builder.Services
 
 // --------------------------------------
 // 3. CORS for local dev
-//    Allow Razor.Web, Angular.Web, etc. to hit the gateway
+//    Allows Razor.Web, Angular.Web, etc. to hit the gateway
 // --------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("dev-cors", policy =>
     {
-        policy.AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials()
-              .WithOrigins(
-                  "https://localhost:7000", // gateway itself (sometimes iframes, etc.)
-                  "http://localhost:7001",
-                  "https://localhost:5001", // Razor.Web HTTPS dev (you'll set in Razor.Web launch later)
-                  "http://localhost:5001",
-                  "http://localhost:4200",  // Angular.Web dev
-                  "http://localhost:4300"   // Angular.Admin dev
-              );
+        policy
+        //.AllowAnyHeader()
+        //.AllowAnyMethod()
+            .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
+            .AllowCredentials()
+            .WithOrigins(
+                "https://localhost:7000", // gateway itself (sometimes iframes, etc.)
+                "http://localhost:7001",
+                "https://localhost:5001", // Razor.Web HTTPS dev (you'll set in Razor.Web launch later)
+                "http://localhost:5001",
+                "http://localhost:4200",  // Angular.Web dev
+                "http://localhost:4300"   // Angular.Admin dev
+            );
     });
 });
 
@@ -112,9 +115,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // /health endpoint for kubernetes / compose / uptime checks
-app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "ApiGateway" }));
+app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "ApiGateway" })).RequireCors("dev-cors");;
 
 // ReverseProxy will now handle all /api/... calls
-app.MapReverseProxy();
+app.MapReverseProxy().RequireCors("dev-cors");
 
 app.Run();

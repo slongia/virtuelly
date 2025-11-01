@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS dev
+
+WORKDIR /app
+
+COPY ./Virtuelly.sln ./
+COPY ./src ./src
+
+RUN dotnet restore ./src/Web/Razor.Admin/Razor.Admin.csproj
+
+CMD ["dotnet", "watch", "run", "--project", "src/Web/Razor.Admin/Razor.Admin.csproj", "--no-hot-reload"]
+

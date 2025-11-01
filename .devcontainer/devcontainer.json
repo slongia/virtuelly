@@ -1,0 +1,34 @@
+{
+  "name": "Virtuelly Dev",
+  "dockerComposeFile": [
+    "../docker-compose.dev.yml"
+  ],
+  "service": "razoradmin",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "dotnet restore Virtuelly.sln && npm install --prefix src/Web/Angular.Web && npm install --prefix src/Web/Angular.Admin",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "dotnet.server.useOmnisharp": true,
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "5001": { "label": "Razor.Web" },
+    "5100": { "label": "Razor.Admin" },
+    "5101": { "label": "IdentityService" },
+    "7000": { "label": "ApiGateway (HTTPS)" },
+    "7001": { "label": "ApiGateway (HTTP)" },
+    "4200": { "label": "Angular.Web" },
+    "4300": { "label": "Angular.Admin" },
+    "5432": { "label": "Postgres" }
+  }
+}
